@@ -1,0 +1,646 @@
+<!doctype html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>My_Calculator_simulator</title>
+    <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+    }
+
+    .header-bar {
+      background-color: #188888;
+      color: #ffffff;
+      padding: 12px 18px;
+      width: 380px;
+      max-width: 92vw;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      border-radius: 0 0 15px 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      letter-spacing: 0.5px;
+    }
+
+    .btn-history {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-history:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .calculator {
+      background-color: #ffffff;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      width: 330px;
+      max-width: 92vw;
+      box-sizing: border-box;
+      animation: cardIn 0.45s ease both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .display-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    #display-expression {
+      width: 100%;
+      min-height: 24px;
+      font-size: 16px;
+      color: #7a8a99;
+      text-align: right;
+      border: none;
+      background: transparent;
+      margin-bottom: 2px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      box-sizing: border-box;
+      padding-left: 78px;
+    }
+
+    #display {
+      width: 100%;
+      height: 58px;
+      font-size: 34px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 2px solid #d7e3ef;
+      border-radius: 12px;
+      text-align: right;
+      background-color: #f1f8ff;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #display:focus {
+      border-color: #188888;
+    }
+
+    #copy-btn {
+      position: absolute;
+      top: 0;
+      left: 0;
+      min-width: 72px;
+      border: none;
+      background: #eef4fa;
+      color: #52667a;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    #copy-btn:hover {
+      background: #dcebfa;
+      color: #188888;
+    }
+
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .keys button {
+      font-size: 20px;
+      font-weight: 600;
+      padding: 14px 0;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s, filter 0.2s;
+    }
+
+    .keys button:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .keys button:active,
+    .keys button.key-flash {
+      transform: scale(0.94);
+      filter: brightness(0.85);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.25);
+    }
+
+    .keys button:focus-visible,
+    .btn-history:focus-visible,
+    #copy-btn:focus-visible,
+    .history-item:focus-visible {
+      outline: 3px solid #188888;
+      outline-offset: 2px;
+    }
+
+    .btn-num {
+      background-color: #ffffff;
+      color: #2b3a4a;
+      border: 1px solid #d7e3ef !important;
+    }
+
+    .btn-op {
+      background-color: #fff3e0;
+      color: #e67e22;
+      border: 1px solid #ffe0b2 !important;
+    }
+
+    .btn-fn {
+      background-color: #fdecea;
+      color: #e74c3c;
+      border: 1px solid #f5c6c2 !important;
+    }
+
+    .btn-eq {
+      grid-column: span 2;
+      background: linear-gradient(135deg, #188888, #12b8b8);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(24, 136, 136, 0.35);
+    }
+
+    .btn-eq:hover {
+      box-shadow: 0 6px 18px rgba(24, 136, 136, 0.5);
+      filter: brightness(1.1);
+    }
+
+    .btn-zero {
+      grid-column: span 2;
+    }
+
+    .history-empty {
+      color: #9aa8b6;
+      font-size: 14px;
+      text-align: center;
+      padding: 25px 0;
+    }
+
+    .history-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      width: 100%;
+      border: 1px solid #e3eaf2;
+      background: #f8fbfe;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .history-item:hover {
+      background: #eef6ff;
+      border-color: #188888;
+    }
+
+    .history-item .eq {
+      color: #7a8a99;
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .history-item .res {
+      color: #2b3a4a;
+      font-size: 17px;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .history-footer {
+      padding: 15px;
+      border-top: 1px solid #e3eaf2;
+    }
+
+    .credit {
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 18px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.5px;
+    }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <span>My_Calculator_simulator</span>
+        <button type="button" class="btn-history" data-bs-toggle="offcanvas" data-bs-target="#historyPanel" aria-controls="historyPanel">History</button>
+    </div>
+
+    <div class="calculator">
+        <div class="display-wrap">
+            <div id="display-expression">&nbsp;</div>
+            <input type="text" id="display" value="0" readonly aria-label="Calculator display" />
+            <button type="button" id="copy-btn" onclick="copyResult()" title="Copy display value">&#10697; Copy</button>
+        </div>
+
+        <div class="keys">
+            <button type="button" class="btn-fn" data-key="Escape" onclick="clearDisplay()">C</button>
+            <button type="button" class="btn-fn" data-key="Backspace" onclick="backspace()">&#9003;</button>
+            <button type="button" class="btn-op" data-key="/" onclick="appendToDisplay('/')">/</button>
+            <button type="button" class="btn-op" data-key="*" onclick="appendToDisplay('*')">*</button>
+
+            <button type="button" class="btn-num" data-key="7" onclick="appendToDisplay('7')">7</button>
+            <button type="button" class="btn-num" data-key="8" onclick="appendToDisplay('8')">8</button>
+            <button type="button" class="btn-num" data-key="9" onclick="appendToDisplay('9')">9</button>
+            <button type="button" class="btn-op" data-key="-" onclick="appendToDisplay('-')">-</button>
+
+            <button type="button" class="btn-num" data-key="4" onclick="appendToDisplay('4')">4</button>
+            <button type="button" class="btn-num" data-key="5" onclick="appendToDisplay('5')">5</button>
+            <button type="button" class="btn-num" data-key="6" onclick="appendToDisplay('6')">6</button>
+            <button type="button" class="btn-op" data-key="+" onclick="appendToDisplay('+')">+</button>
+
+            <button type="button" class="btn-num" data-key="1" onclick="appendToDisplay('1')">1</button>
+            <button type="button" class="btn-num" data-key="2" onclick="appendToDisplay('2')">2</button>
+            <button type="button" class="btn-num" data-key="3" onclick="appendToDisplay('3')">3</button>
+            <button type="button" class="btn-op" data-key="." onclick="appendToDisplay('.')">.</button>
+
+            <button type="button" class="btn-num btn-zero" data-key="0" onclick="appendToDisplay('0')">0</button>
+            <button type="button" class="btn-eq" data-key="Enter" onclick="calculateResult()">=</button>
+        </div>
+    </div>
+
+    <div class="credit">by AirCadet Apirak CS</div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="historyPanel" aria-labelledby="historyTitle">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="historyTitle">Calculation History</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div id="history-list"></div>
+        </div>
+        <div class="history-footer">
+            <button type="button" class="btn btn-outline-danger w-100" onclick="clearHistory()">Clear all</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+    var expression = "";
+    var justCalculated = false;
+    var hadError = false;
+    var lastEquation = "";
+    var resultText = "";
+    var historyList = [];
+    var HISTORY_KEY = "myCalculatorHistory";
+    var HISTORY_MAX = 20;
+
+    var display = document.getElementById("display");
+    var displayExpression = document.getElementById("display-expression");
+    var copyBtn = document.getElementById("copy-btn");
+    var historyListEl = document.getElementById("history-list");
+
+    function groupNumber(str) {
+      var parts = str.split(".");
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return parts.join(".");
+    }
+
+    function formatNumberString(str) {
+      if (/e/i.test(str)) return str;
+      return str.replace(/\d+(?:\.\d+)?/g, function (m) {
+        return groupNumber(m);
+      });
+    }
+
+    function pretty(str) {
+      return str.replace(/\*/g, "\u00d7").replace(/\//g, "\u00f7").replace(/-/g, "\u2212");
+    }
+
+    function formatExpression(expr) {
+      return pretty(formatNumberString(expr));
+    }
+
+    function formatResult(n) {
+      var s = String(n);
+      if (/e/i.test(s)) return s;
+      return pretty(formatNumberString(s));
+    }
+
+    function adjustFont() {
+      var len = display.value.length;
+      var size = 34;
+      if (len > 13) size = Math.max(16, Math.floor(34 * 13 / len));
+      display.style.fontSize = size + "px";
+    }
+
+    function refreshDisplay() {
+      if (hadError) {
+        display.value = "Error";
+        displayExpression.textContent = "\u00a0";
+        adjustFont();
+        return;
+      }
+      if (justCalculated && resultText !== "") {
+        display.value = resultText;
+        displayExpression.textContent = lastEquation;
+        adjustFont();
+        return;
+      }
+      display.value = expression === "" ? "0" : formatExpression(expression);
+      displayExpression.textContent = "\u00a0";
+      adjustFont();
+    }
+
+    function appendToDisplay(value) {
+      if (hadError) {
+        hadError = false;
+        expression = "";
+      }
+
+      if (justCalculated) {
+        justCalculated = false;
+        lastEquation = "";
+        resultText = "";
+        if (/^[0-9.]$/.test(value)) {
+          expression = "";
+        }
+      }
+
+      var last = expression.slice(-1);
+
+      if (/^[+\-*/]$/.test(value)) {
+        if (expression === "" && value !== "-") return;
+        if (/^[+\-*/.]$/.test(last)) {
+          var base = expression.slice(0, -1);
+          if (base === "" && value !== "-") {
+            refreshDisplay();
+            return;
+          }
+          expression = base + value;
+          refreshDisplay();
+          return;
+        }
+      }
+
+      if (value === ".") {
+        var currentNumber = expression.split(/[+\-*/]/).pop();
+        if (currentNumber.indexOf(".") !== -1) return;
+        if (currentNumber === "") value = "0.";
+      }
+
+      if (expression === "0" && /^[0-9]$/.test(value)) {
+        expression = "";
+      }
+
+      expression += value;
+      refreshDisplay();
+    }
+
+    function backspace() {
+      if (hadError) {
+        clearDisplay();
+        return;
+      }
+      if (justCalculated) {
+        clearDisplay();
+        return;
+      }
+      expression = expression.slice(0, -1);
+      refreshDisplay();
+    }
+
+    function clearDisplay() {
+      expression = "";
+      justCalculated = false;
+      hadError = false;
+      lastEquation = "";
+      resultText = "";
+      refreshDisplay();
+    }
+
+    function showError() {
+      hadError = true;
+      expression = "";
+      justCalculated = false;
+      lastEquation = "";
+      resultText = "";
+      refreshDisplay();
+    }
+
+    function calculateResult() {
+      if (hadError) {
+        clearDisplay();
+        return;
+      }
+      if (expression === "" || justCalculated) return;
+
+      var cleaned = expression.replace(/[+\-*/.]+$/, "");
+      if (cleaned === "" || !/^[0-9eE+\-*/. ()]+$/.test(cleaned)) {
+        showError();
+        return;
+      }
+
+      try {
+        var result = Function('"use strict"; return (' + cleaned + ')')();
+        if (typeof result !== "number" || !isFinite(result)) {
+          throw new Error("invalid result");
+        }
+        result = Math.round(result * 1e10) / 1e10;
+        lastEquation = formatExpression(cleaned) + " =";
+        resultText = formatResult(result);
+        expression = String(result);
+        justCalculated = true;
+        hadError = false;
+        addHistory(cleaned, expression);
+        refreshDisplay();
+      } catch (e) {
+        showError();
+      }
+    }
+
+    function copyResult() {
+      var text = hadError ? "" : expression;
+      if (text === "") {
+        showCopyState("No value");
+        return;
+      }
+      var done = function () { showCopyState("\u2713 Copied"); };
+      var fail = function () { showCopyState("Failed"); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {
+          if (legacyCopy(text)) { done(); } else { fail(); }
+        });
+      } else if (legacyCopy(text)) {
+        done();
+      } else {
+        fail();
+      }
+    }
+
+    function legacyCopy(text) {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    var copyTimer = null;
+    function showCopyState(msg) {
+      copyBtn.textContent = msg;
+      if (copyTimer) clearTimeout(copyTimer);
+      copyTimer = setTimeout(function () {
+        copyBtn.innerHTML = "&#10697; Copy";
+      }, 1500);
+    }
+
+    function loadHistory() {
+      try {
+        var raw = localStorage.getItem(HISTORY_KEY);
+        var parsed = raw ? JSON.parse(raw) : [];
+        historyList = Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        historyList = [];
+      }
+      renderHistory();
+    }
+
+    function saveHistory() {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(historyList));
+      } catch (e) { /* storage unavailable */ }
+    }
+
+    function addHistory(rawExpr, rawResult) {
+      historyList.unshift({ e: rawExpr, r: rawResult });
+      if (historyList.length > HISTORY_MAX) historyList.length = HISTORY_MAX;
+      saveHistory();
+      renderHistory();
+    }
+
+    function clearHistory() {
+      historyList = [];
+      saveHistory();
+      renderHistory();
+    }
+
+    function useHistory(index) {
+      var item = historyList[index];
+      if (!item || typeof item.r !== "string") return;
+      expression = item.r;
+      resultText = formatNumberString(item.r);
+      lastEquation = formatExpression(String(item.e)) + " =";
+      justCalculated = true;
+      hadError = false;
+      refreshDisplay();
+    }
+
+    function renderHistory() {
+      historyListEl.textContent = "";
+      if (historyList.length === 0) {
+        var empty = document.createElement("div");
+        empty.className = "history-empty";
+        empty.textContent = "No calculations yet";
+        historyListEl.appendChild(empty);
+        return;
+      }
+      historyList.forEach(function (item, i) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "history-item";
+        btn.setAttribute("data-bs-dismiss", "offcanvas");
+        btn.addEventListener("click", function () { useHistory(i); });
+        var eq = document.createElement("div");
+        eq.className = "eq";
+        eq.textContent = formatExpression(String(item.e)) + " =";
+        var res = document.createElement("div");
+        res.className = "res";
+        res.textContent = formatNumberString(String(item.r));
+        btn.appendChild(eq);
+        btn.appendChild(res);
+        historyListEl.appendChild(btn);
+      });
+    }
+
+    function flashKey(key) {
+      var btn = document.querySelector('[data-key="' + key + '"]');
+      if (!btn) return;
+      btn.classList.add("key-flash");
+      setTimeout(function () {
+        btn.classList.remove("key-flash");
+      }, 150);
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      var key = event.key;
+
+      if (key === "/") event.preventDefault();
+      if (key === "'") event.preventDefault();
+
+      if ((key === "Enter" || key === " ") && event.target && event.target.tagName === "BUTTON") {
+        return;
+      }
+
+      if (/^[0-9]$/.test(key)) {
+        flashKey(key);
+        appendToDisplay(key);
+      } else if (key === "+" || key === "-" || key === "*" || key === "/" || key === ".") {
+        flashKey(key);
+        appendToDisplay(key);
+      } else if (key === "Enter" || key === "=") {
+        event.preventDefault();
+        flashKey("Enter");
+        calculateResult();
+      } else if (key === "Backspace") {
+        event.preventDefault();
+        flashKey("Backspace");
+        backspace();
+      } else if (key === "Escape" || key.toLowerCase() === "c") {
+        flashKey("Escape");
+        clearDisplay();
+      }
+    });
+
+    loadHistory();
+    refreshDisplay();
+    </script>
+</body>
+</html>
